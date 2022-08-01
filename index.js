@@ -19,9 +19,32 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         client.connect()
-        const collection = client.db("test").collection("devices");
-        console.log('vai mongodb')
+        const UserQuizCollection = client.db("QuizsDb").collection("UserQuiz");
 
+        /* ===============================  joy vai ================= */
+        
+        // Quiz post method
+        app.post('/addQuiz', async (req, res) => {
+            const QuizData = req.body;
+            await UserQuizCollection.insertOne(QuizData);
+            res.send({ success: true })
+
+        })
+
+        // Get Quiz  method
+        app.get('/GetQuiz', async (req, res) => {
+            const Quizs = await UserQuizCollection.find().toArray()
+            res.send({ success: true, data: Quizs });
+
+        })
+
+        // get Quiz User
+        app.get('/getQuiz/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const user = await UserQuizCollection.find(query);
+            res.send({ data: user })
+        })
 
     } finally {
         //   await client.close();
