@@ -12,15 +12,84 @@ const cors = require('cors')
 app.use(cors())
 app.use(express.json())
 
-const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.nmcunxb.mongodb.net/?retryWrites=true&w=majority`;
+
+/* ============= start Connection =============== */
+
+
+const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.8ngni.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+// const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.nmcunxb.mongodb.net/?retryWrites=true&w=majority`;
+// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
 async function run() {
     try {
         client.connect()
-        const collection = client.db("test").collection("devices");
         console.log('vai mongodb')
+
+        // All Connections
+
+        // Bangla Quiz 1 Collections : 
+        const BanglaQuizQusCollection1 = client.db("QuizsDb").collection("BanglaQuiz1");
+        const BanglaQuizAnsCollection1 = client.db("QuizsDb").collection("BanglaQuizAns1");
+
+        // Bangla Quiz 1 Collections : 
+        const BanglaQuizQusCollection2 = client.db("QuizsDb").collection("BanglaQuiz2");
+        const BanglaQuizAnsCollection2 = client.db("QuizsDb").collection("BanglaQuizAns2");
+
+
+
+
+        // Bangla Quiz Data :- 1
+        app.get('/GetBgQuizQs1', async (req, res) => {
+            const Quizs = await BanglaQuizQusCollection1.find().toArray()
+            res.send({ success: true, data: Quizs });
+
+        })
+
+        // Bangla Quiz post :- 1
+        app.post('/BngQuiz1', async (req, res) => {
+            const QuizData = req.body;
+            await BanglaQuizAnsCollection1.insertOne(QuizData);
+            res.send({ success: true })
+        })
+
+        // Bangla Quiz Ans Data :- 1
+        app.get('/getQuizAns1/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const AnsData = BanglaQuizAnsCollection1.find(query);
+            const result = await AnsData.toArray()
+            res.send({ data: result })
+        })
+
+
+
+
+        // Bangla Quiz Data :- 2
+        app.get('/GetBgQuizQs2', async (req, res) => {
+            const Quizs = await BanglaQuizQusCollection2.find().toArray()
+            res.send({ success: true, data: Quizs });
+
+        })
+
+        // Bangla Quiz post :- 2
+        app.post('/BngQuiz2', async (req, res) => {
+            const QuizData = req.body;
+            await BanglaQuizAnsCollection2.insertOne(QuizData);
+            res.send({ success: true })
+        })
+
+        // Bangla Quiz Ans Data :- 2
+        app.get('/getQuizAns2/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const AnsData = BanglaQuizAnsCollection2.find(query);
+            const result = await AnsData.toArray()
+            res.send({ data: result })
+        })
+
 
 
     } finally {
@@ -28,6 +97,7 @@ async function run() {
     }
 }
 run().catch(console.dir);
+
 
 app.get('/', (req, res) => {
     res.send('Hello World, How are you')
