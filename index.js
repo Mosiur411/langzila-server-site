@@ -29,7 +29,10 @@ async function run() {
         console.log('vai mongodb')
 
         // All Connections
-
+        //Add review
+        // const AddReviewCollection = client.db("Review").collection("Reviewuser");
+        const newAddReviewCollection = client.db("newReview").collection("newReviewuser");
+        const askQuestion = client.db("newQuestion").collection("newdetailsquestion");
         // Bangla Quiz 1 Collections : 
         const BanglaQuizQusCollection1 = client.db("QuizsDb").collection("BanglaQuiz1");
         const BanglaQuizAnsCollection1 = client.db("QuizsDb").collection("BanglaQuizAns1");
@@ -89,8 +92,28 @@ async function run() {
             const result = await AnsData.toArray()
             res.send({ data: result })
         })
+        app.post('/review', async (req, res) => {
+            const reviewbody = req.body
+            console.log(reviewbody);
+            await newAddReviewCollection.insertOne(reviewbody);
+            res.send({ success: true })
+        })
+        app.get('/review', async (req, res) => {
+            const Rev = await newAddReviewCollection.find().toArray()
+            res.send({ success: true, data: Rev });
 
+        })
+        app.post('/ask', async (req, res) => {
+            const question = req.body
+            console.log(question);
+            await askQuestion.insertOne(question);
+            res.send({ success: true })
+        })
+        app.get('/ask', async (req, res) => {
+            const ask = await askQuestion.find().toArray()
+            res.send({ success: true, data: ask });
 
+        })
 
     } finally {
         //   await client.close();
