@@ -47,7 +47,68 @@ async function run() {
         const BanglaQuizQusCollection2 = client.db("QuizsDb").collection("BanglaQuiz2");
         const BanglaQuizAnsCollection2 = client.db("QuizsDb").collection("BanglaQuizAns2");
 
+// Event Data Collections : 
+const eventCollections = client.db("eventDB").collection("EventData");
 
+
+
+// Event Data post :- 1
+app.post('/eventData', async (req, res) => {
+    const EventData = req.body;
+    await eventCollections.insertOne(EventData);
+    res.send({ success: true })
+})
+
+
+
+// UPDATE USER AND CREATE TOKEN
+app.patch('/eventData/:email', async (req, res) => {
+    const email = req.params.email;
+    const EventData = req.body;
+    const course = EventData.course
+    const filter = { email: email, course: course }
+    const option = { upsert: true }
+    const updateDoc = {
+        $set: EventData,
+    };
+    const result = await eventCollections.updateOne(filter, updateDoc, option)
+    res.send({ success: true, data: result });
+})
+
+
+// get Event data
+app.get('/eventData/:email/:course', async (req, res) => {
+    const email = req.params.email;
+    const course = req.params.course
+    if (email || course) {
+        const param = { email: email, course: course }
+        const result = await eventCollections.findOne(param)
+        res.send({ success: true, data: result })
+    }
+})
+
+
+// Delete Event data
+app.delete('/eventDelete/:email/:course', async (req, res) => {
+    const email = req.params.email;
+    const course = req.params.course;
+
+    if (email || course) {
+        const param = { email: email, course: course }
+        const result = await eventCollections.deleteOne(param);
+        console.log(result)
+        res.send({ data: result })
+    }
+})
+
+// get Event data
+app.get('/eventData/:email', async (req, res) => {
+    const email = req.params.email;
+    const data = eventCollections.find({ email: email })
+    const result = await data.toArray()
+    res.send({ data: result })
+
+})
 
 
         // Bangla Quiz Data :- 1
