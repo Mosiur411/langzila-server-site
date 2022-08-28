@@ -39,6 +39,7 @@ async function run() {
         const Votedata = client.db("AllVote").collection("Pervote");
         const Reactdata = client.db("AllReact").collection("perReact");
         const UserColllection=client.db("user").collection("perUser");
+        const UserCall=client.db("Alluser").collection("role");
         // Bangla Quiz 1 Collections : 
         const BanglaQuizQusCollection1 = client.db("QuizsDb").collection("BanglaQuiz1");
         const BanglaQuizAnsCollection1 = client.db("QuizsDb").collection("BanglaQuizAns1");
@@ -277,29 +278,56 @@ app.get('/eventData/:email', async (req, res) => {
             const result = await vote.toArray()
             res.send(result)
         })
-        app.post('/check',async(req,res)=>{
-            const fetch = require('node-fetch');
 
-const encodedParams = new URLSearchParams();
+        app.put('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = req.body;
+            console.log(user);
+            
+       const filter = { email: email };
+         const options = { upsert: true };
+            const updateDoc = {
+              $set: user,
+      
+            };
+        const result = await UserCall.updateOne(filter, updateDoc, options);
+            res.send({ result });
+          })
 
 
-const url = 'https://dnaber-languagetool.p.rapidapi.com/v2/check';
+          app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const findAdmin = await UserCall.findOne({ email: email })
+      
+      
+      
+            const isAdmin = findAdmin?.role === 'admin'|| "false";
+            res.send({ admin: isAdmin })
+          })
 
-const options = {
-  method: 'POST',
-  headers: {
-    'content-type': 'application/x-www-form-urlencoded',
-    'X-RapidAPI-Key': '157b7f57b0msh5d5f20acfc8da8cp1129e6jsn8ad2b297eedf',
-    'X-RapidAPI-Host': 'dnaber-languagetool.p.rapidapi.com'
-  },
-  params: {text: req.body.text, language: 'en-US'}
-};
+          app.put('/user/admin/:email', async (req, res) => {
+            const email = req.params.email;
+      
+      
+            const filter = { email: email };
+      
+            const updateDoc = {
+              $set: { role: "admin" },
+      
+            };
+      
+            const result = await UserCall.updateOne(filter, updateDoc);
+            res.send({ result });
+      
+      
+      
+          })
+          app.get('/roleuser', async (req, res) => {
+            const to = await UserCall.find().toArray()
+            res.send(to);
 
-fetch(url, options)
-	.then(res => res.json())
-	.then(json => console.log(json))
-	.catch(err => console.error('error:' + err));
         })
+
         // app.post('/react', async (req, res) => {
         //     const react = req.body
         //     console.log(react);
